@@ -164,10 +164,16 @@ a:visited{
   transition: all 0.2s;
 }
 
+option{
+  background: var(--color-dark--2);
+  color: var(--color-light--2);
+}
+
 .form_input:focus{
   outline: none;
   background-color: #fff;
 }
+
 
 .form_btn{
   display: none;
