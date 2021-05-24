@@ -71,7 +71,13 @@ class App {
   #mapEvent;
   #workouts = [];
   constructor(){
+    // Get users position
     this._getPosition();
+
+    // Get data from local storage
+    this._getLocalStorage();
+
+    // Attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -87,7 +93,7 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
     
       const {latitude} = position.coords;
       const {longitude} = position.coords;
-      console.log(`https://www.google.co.uk/maps/@${latitude},${longitude}`)
+      
     
       const coords = [latitude, longitude];
     
@@ -100,6 +106,9 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
       //handling clicks on map
         this.#map.on('click', this._showForm.bind(this))
      
+        this.#workouts.forEach(work => {
+          this._renderWorkoutMarker(work);
+        });
   }
 
   _showForm(mapE){
@@ -174,6 +183,9 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
     
     // Hide the form & Clear Input fields
     this._hideForm();
+
+    // Set loacal storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout){
@@ -245,7 +257,6 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
 
 
     const workout = this.#workouts.find(work => work.id === workoutEL.dataset.id);
-    console.log(workout)
 
     this.#map.setView(workout.coords, this.#mapZoomLevel, {
       animate: true,
@@ -255,7 +266,27 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
     });
 
     // using the public interface
-    workout.click();
+    // workout.click();
+  }
+
+  _setLocalStorage(){
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage(){
+    const data = JSON.parse(localStorage.getItem('workouts'))
+
+    if(!data) return;
+
+    this.#workouts = data;
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
+  }
+
+  reset(){
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
